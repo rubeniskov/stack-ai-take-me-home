@@ -38,3 +38,11 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/bui
 ## Automated Code Quality (Git Hooks)
 
 To ensure the codebase adheres to React good practices and maintains high code quality standards throughout in development cycle, I implemented an automated linting and formatting pipeline using Husky and lint-staged.Husky: Manages native Git hooks to prevent "dirty" code from being committed to the repository.lint-staged.
+
+## Standardized Commit Messages
+
+To maintain a clear and readable project history, I have enforced the Conventional Commits specification using Commitlint.
+
+- Enforcement: A commit-msg Husky hook intercepts every commit to validate the message format.
+
+- Structure: Commits must follow the pattern: type(scope): description (e.g., feat(api): add useDrive hook for file indexing).
