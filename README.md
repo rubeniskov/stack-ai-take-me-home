@@ -62,3 +62,14 @@ I have implemented a testing pipeline to ensure UI/UX quality and functional sta
   - `pnpm run test:watch`: Continuous testing during development.
 
 - Safety Gate: Tests are integrated into the Git pre-commit hook via Husky, ensuring that no breaking changes to the Google Drive connection or Knowledge Base indexing are pushed to the repository.
+
+### CI/CD
+
+I have implemented a GitHub Actions workflow to automate the testing, linting, and formatting checks on every push or pull request to the `main` branch.
+
+- **Workflow**: `.github/workflows/ci.yml`
+- **Steps**:
+  - **Lint**: Ensures the code follows ESLint rules.
+  - **Format**: Verifies that the code is formatted with Prettier.
+  - **Test**: Runs the unit tests using Vitest.
+- **Environment**: Node.js 22, pnpm 9, Ubuntu.
