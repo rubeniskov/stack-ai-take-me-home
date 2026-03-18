@@ -15,15 +15,20 @@ export default async function BrowsePage(props: {
     redirect("/auth/login");
   }
 
+  // Get current connection and folder ID from path if present
+  // URL structure: /browse/[connectionId]/[resourceId]
+  const connectionId = params.folder?.[0];
+  const resourceId = params.folder?.[1];
+
   return (
     <div className="bg-muted/20">
       <main className="mx-auto p-6 md:p-8 space-y-8">
         <div className="grid gap-8">
           <section className="space-y-4">
-            <div className="flex items-center justify-between">
-              <h3 className="text-lg font-semibold">Google Drive Connection</h3>
-            </div>
-            <FilePicker />
+            <FilePicker
+              initialConnectionId={connectionId}
+              initialFolderId={resourceId}
+            />
           </section>
         </div>
       </main>
