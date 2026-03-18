@@ -56,31 +56,27 @@ describe("driveApi", () => {
   });
 
   it("lists knowledge bases correctly", async () => {
-    const mockData: PaginatedResponse<KnowledgeBase> = {
-      data: [
-        {
-          knowledge_base_id: "kb-123",
-          connection_id: "conn-123",
-          connection_source_ids: ["src-1", "src-2"],
-          indexing_params: {
-            ocr: false,
-            unstructured: true,
-            embedding_params: {
-              embedding_model: "openai.text-embedding-ada-002",
-              api_key: null,
-            },
-            chunker_params: {
-              chunk_size: 1500,
-              chunk_overlap: 500,
-              chunker: "sentence",
-            },
+    const mockData: KnowledgeBase[] = [
+      {
+        knowledge_base_id: "kb-123",
+        connection_id: "conn-123",
+        connection_source_ids: ["src-1", "src-2"],
+        indexing_params: {
+          ocr: false,
+          unstructured: true,
+          embedding_params: {
+            embedding_model: "openai.text-embedding-ada-002",
+            api_key: null,
           },
-          org_level_role: null,
+          chunker_params: {
+            chunk_size: 1500,
+            chunk_overlap: 500,
+            chunker: "sentence",
+          },
         },
-      ],
-      next_cursor: null,
-      current_cursor: null,
-    };
+        org_level_role: null,
+      },
+    ];
 
     vi.mocked(fetch).mockResolvedValue({
       ok: true,

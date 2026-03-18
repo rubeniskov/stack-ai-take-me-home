@@ -46,8 +46,9 @@ export async function listKnowledgeBases(
     throw new Error("Failed to list knowledge bases");
   }
 
-  const data: PaginatedResponse<KnowledgeBase> = await response.json();
-  return data.data || [];
+  const data: KnowledgeBase[] = await response.json();
+
+  return data || [];
 }
 
 /**
