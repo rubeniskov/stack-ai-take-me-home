@@ -12,6 +12,7 @@ import { useDeleteResource } from "@/hooks/useDeleteResource";
 import { FilePickerSidebar } from "./sidebar";
 import { FilePickerHeader } from "./header";
 import { FilePickerTable } from "./table";
+import { FilePickerFooter } from "./footer";
 import { ConnectionNames } from "./constants";
 
 export interface FilePickerProps {
@@ -34,6 +35,7 @@ export function FilePicker({
   const currentFolderId = initialFolderId;
 
   const [searchQuery, setSearchQuery] = useState("");
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
 
   // Redirect to first connection if none selected
   useEffect(() => {
@@ -81,20 +83,66 @@ export function FilePicker({
     );
   }, [resources, searchQuery]);
 
+  const selectableResources = useMemo(() => {
+    return (
+      resources?.data?.filter(
+        (r) => r.inode_type === "file" && !indexedPaths.has(r.inode_path.path),
+      ) || []
+    );
+  }, [resources, indexedPaths]);
+
+  const handleToggleSelection = useCallback((id: string) => {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) {
+        next.delete(id);
+      } else {
+        next.add(id);
+      }
+      return next;
+    });
+  }, []);
+
+  const handleSelectAll = useCallback(() => {
+    const allSelected =
+      selectableResources.length > 0 &&
+      selectableResources.every((r) => selectedIds.has(r.resource_id));
+
+    if (allSelected) {
+      setSelectedIds(new Set());
+    } else {
+      setSelectedIds(new Set(selectableResources.map((r) => r.resource_id)));
+    }
+  }, [selectableResources, selectedIds]);
+
   const handleFolderClick = (id: string) => {
+    setSelectedIds(new Set());
     router.push(`/browse/${currentConnectionId}/${id}`);
   };
 
   const handleBack = useCallback(() => {
+    setSelectedIds(new Set());
     router.push(`/browse/${currentConnectionId}`);
   }, [router, currentConnectionId]);
 
   const handleConnectionSelect = useCallback(
     (id: string) => {
+      setSelectedIds(new Set());
       router.push(`/browse/${id}`);
     },
     [router],
   );
+
+  const handleConfirm = useCallback(async () => {
+    if (!currentConnectionId || selectedIds.size === 0 || !currentKb) return;
+
+    await createKb.mutateAsync({
+      connectionId: currentConnectionId,
+      resourceIds: Array.from(selectedIds),
+    });
+    await syncKb.mutateAsync(currentKb.knowledge_base_id);
+    setSelectedIds(new Set());
+  }, [currentConnectionId, currentKb, selectedIds, createKb, syncKb]);
 
   const handleImport = useCallback(
     async (id: string) => {
@@ -129,6 +177,10 @@ export function FilePicker({
   const isActionPending =
     createKb.isPending || syncKb.isPending || deleteResource.isPending;
 
+  const isAllSelected =
+    selectableResources.length > 0 &&
+    selectableResources.every((r) => selectedIds.has(r.resource_id));
+
   if (!connections?.length) {
     return (
       <div className="flex h-[600px] w-full items-center justify-center border rounded-lg bg-background shadow-lg">
@@ -158,9 +210,20 @@ export function FilePicker({
           onFolderClick={handleFolderClick}
           onBack={currentFolderId ? handleBack : undefined}
           indexedPaths={indexedPaths}
+          selectedIds={selectedIds}
+          onToggleSelection={handleToggleSelection}
           onImport={handleImport}
           onRemove={handleRemove}
           isActionPending={isActionPending}
+        />
+
+        <FilePickerFooter
+          selectedCount={selectedIds.size}
+          onCancel={() => setSelectedIds(new Set())}
+          onSelectAll={handleSelectAll}
+          isAllSelected={isAllSelected}
+          onConfirm={handleConfirm}
+          isConfirmPending={isActionPending}
         />
       </div>
     </div>

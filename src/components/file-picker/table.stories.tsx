@@ -13,7 +13,9 @@ const meta: Meta<typeof FilePickerTable> = {
     onFolderClick: fn(),
     onImport: fn(),
     onRemove: fn(),
+    onToggleSelection: fn(),
     isActionPending: false,
+    selectedIds: new Set(),
   },
 };
 
@@ -64,6 +66,7 @@ export const WithData: Story = {
     resources: mockResources,
     isLoading: false,
     indexedPaths: new Set(["/Documents/report.pdf"]),
+    selectedIds: new Set(["2"]),
   },
 };
 
@@ -73,6 +76,7 @@ export const WithBack: Story = {
     isLoading: false,
     indexedPaths: new Set(),
     onBack: fn(),
+    selectedIds: new Set(),
   },
 };
 

@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Checkbox } from "@/components/ui/checkbox";
 import { FolderIcon, FileIcon, Trash2, ArrowUpLeft } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Resource } from "@/lib/api";
@@ -18,6 +19,8 @@ import { Resource } from "@/lib/api";
 export interface FilePickerTableProps {
   resources: Resource[] | undefined;
   indexedPaths: Set<string>;
+  selectedIds: Set<string>;
+  onToggleSelection: (id: string) => void;
   isActionPending: boolean;
   isLoading: boolean;
   onFolderClick: (id: string) => void;
@@ -32,6 +35,8 @@ export function FilePickerTable({
   onFolderClick,
   onBack,
   indexedPaths,
+  selectedIds,
+  onToggleSelection,
   onImport,
   onRemove,
   isActionPending,
@@ -61,6 +66,9 @@ export function FilePickerTable({
     if (isLoading) {
       return Array.from({ length: 5 }).map((_, idx) => (
         <TableRow key={idx}>
+          <TableCell className="w-10">
+            <Skeleton className="h-4 w-4" />
+          </TableCell>
           <TableCell>
             <Skeleton className="h-4 w-[200px]" />
           </TableCell>
@@ -76,6 +84,7 @@ export function FilePickerTable({
     if (onBack) {
       nodes.push(
         <TableRow key="back-button" className="group">
+          <TableCell className="w-10" />
           <TableCell colSpan={2}>
             <div
               className="flex items-center gap-3 cursor-pointer hover:text-primary font-medium"
@@ -92,6 +101,7 @@ export function FilePickerTable({
     if (!resources || resources.length === 0) {
       nodes.push(
         <TableRow key="empty-state">
+          <TableCell className="w-10" />
           <TableCell
             colSpan={2}
             className="h-32 text-center text-muted-foreground"
@@ -107,9 +117,20 @@ export function FilePickerTable({
           const isFolder = resource.inode_type === "directory";
           const name = resource.inode_path.path.split("/").pop() || "/";
           const isIndexed = indexedPaths.has(resource.inode_path.path);
+          const isSelected = selectedIds.has(resource.resource_id);
 
           return (
             <TableRow key={resource.resource_id} className="group">
+              <TableCell className="w-10">
+                {!isFolder && !isIndexed && (
+                  <Checkbox
+                    checked={isSelected}
+                    onCheckedChange={() =>
+                      onToggleSelection(resource.resource_id)
+                    }
+                  />
+                )}
+              </TableCell>
               <TableCell className={cn(!isIndexed && "opacity-50")}>
                 <div
                   className={cn(
@@ -167,6 +188,8 @@ export function FilePickerTable({
     handleRemove,
     handleFolderClick,
     onBack,
+    selectedIds,
+    onToggleSelection,
   ]);
 
   return (
@@ -174,6 +197,7 @@ export function FilePickerTable({
       <Table>
         <TableHeader className="sticky top-0 bg-background z-10">
           <TableRow>
+            <TableHead className="w-10"></TableHead>
             <TableHead>Name</TableHead>
             <TableHead className="w-[100px] text-right"></TableHead>
           </TableRow>
