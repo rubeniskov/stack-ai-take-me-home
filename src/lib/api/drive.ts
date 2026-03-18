@@ -86,6 +86,33 @@ export async function listResources(
 }
 
 /**
+ * Gets a single resource by ID.
+ */
+export async function getResource(
+  credentials: AuthResponse,
+  connectionId: string,
+  resourceId: string,
+): Promise<Resource> {
+  const url = new URL(`${BASE_URL}/v1/connections/${connectionId}/resources`);
+  url.searchParams.append("resource_id", resourceId);
+
+  const response = await fetch(url.toString(), {
+    headers: getAuthHeaders(credentials),
+  });
+
+  if (!response.ok) {
+    throw new Error("Failed to get resource");
+  }
+
+  const data = await response.json();
+  const resources = data.data || [];
+  if (resources.length === 0) {
+    throw new Error("Resource not found");
+  }
+  return resources[0];
+}
+
+/**
  * Creates a knowledge base.
  */
 export async function createKnowledgeBase(
@@ -190,7 +217,13 @@ export async function deleteKnowledgeBaseResource(
 
   const response = await fetch(url.toString(), {
     method: "DELETE",
-    headers: getAuthHeaders(credentials),
+    headers: {
+      ...getAuthHeaders(credentials),
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      resource_path: path,
+    }),
   });
 
   if (!response.ok) {

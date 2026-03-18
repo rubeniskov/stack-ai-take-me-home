@@ -94,5 +94,6 @@ export interface KnowledgeBase {
 export type ResourceStatus = "pending" | "indexed" | "error";
 
 export interface KnowledgeBaseResource extends Resource {
-  status: ResourceStatus;
+  resource_id: string;
+  status?: ResourceStatus;
 }

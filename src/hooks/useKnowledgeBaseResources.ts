@@ -20,5 +20,6 @@ export function useKnowledgeBaseResources(
     queryFn: () =>
       listKnowledgeBaseResources(credentials!, knowledgeBaseId!, path),
     enabled: !!credentials && !!knowledgeBaseId,
+    refetchInterval: 5000, // Poll every 5 seconds to get updates on resource status
   });
 }

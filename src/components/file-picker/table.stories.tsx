@@ -14,6 +14,7 @@ const meta: Meta<typeof FilePickerTable> = {
     onImport: fn(),
     onRemove: fn(),
     onToggleSelection: fn(),
+    indexedResources: new Map(),
     isActionPending: false,
     selectedIds: new Set(),
   },
@@ -49,7 +50,6 @@ export const Loading: Story = {
   args: {
     resources: [],
     isLoading: true,
-    indexedPaths: new Set(),
   },
 };
 
@@ -57,7 +57,6 @@ export const Empty: Story = {
   args: {
     resources: [],
     isLoading: false,
-    indexedPaths: new Set(),
   },
 };
 
@@ -65,8 +64,36 @@ export const WithData: Story = {
   args: {
     resources: mockResources,
     isLoading: false,
-    indexedPaths: new Set(["/Documents/report.pdf"]),
-    selectedIds: new Set(["2"]),
+    indexedResources: new Map([
+      [
+        "2",
+        {
+          resource_id: "2",
+          inode_type: "file" as const,
+          inode_path: { path: "/Documents/report.pdf" },
+          status: "indexed" as const,
+        },
+      ],
+    ]),
+  },
+};
+
+export const Syncing: Story = {
+  args: {
+    resources: mockResources,
+    isLoading: false,
+    indexedResources: new Map([
+      [
+        "2",
+        {
+          resource_id: "2",
+          inode_type: "file" as const,
+          inode_path: { path: "/Documents/report.pdf" },
+          status: "pending" as const,
+        },
+      ],
+    ]),
+    isActionPending: true,
   },
 };
 
@@ -74,9 +101,7 @@ export const WithBack: Story = {
   args: {
     resources: mockResources,
     isLoading: false,
-    indexedPaths: new Set(),
     onBack: fn(),
-    selectedIds: new Set(),
   },
 };
 
@@ -84,7 +109,6 @@ export const ActionPending: Story = {
   args: {
     resources: mockResources,
     isLoading: false,
-    indexedPaths: new Set(["/Documents/report.pdf"]),
     isActionPending: true,
   },
 };

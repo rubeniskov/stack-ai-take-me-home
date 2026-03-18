@@ -12,13 +12,23 @@ import {
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Checkbox } from "@/components/ui/checkbox";
-import { FolderIcon, FileIcon, Trash2, ArrowUpLeft } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import {
+  FolderIcon,
+  FileIcon,
+  Trash2,
+  ArrowUpLeft,
+  Loader2,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
-import { Resource } from "@/lib/api";
+import { Resource, KnowledgeBaseResource } from "@/lib/api";
+
+const normalizePath = (p: string) => p.replace(/^\/+|\/+$/g, "");
 
 export interface FilePickerTableProps {
   resources: Resource[] | undefined;
-  indexedPaths: Set<string>;
+  indexedResources: Map<string, KnowledgeBaseResource>;
+  isParentIndexed?: boolean;
   selectedIds: Set<string>;
   onToggleSelection: (id: string) => void;
   isActionPending: boolean;
@@ -26,7 +36,7 @@ export interface FilePickerTableProps {
   onFolderClick: (id: string) => void;
   onBack?: () => void;
   onImport: (id: string) => void;
-  onRemove: (id: string) => void;
+  onRemove: (id: string, path: string) => void;
 }
 
 export function FilePickerTable({
@@ -34,27 +44,14 @@ export function FilePickerTable({
   isLoading,
   onFolderClick,
   onBack,
-  indexedPaths,
+  indexedResources,
+  isParentIndexed,
   selectedIds,
   onToggleSelection,
   onImport,
   onRemove,
   isActionPending,
 }: FilePickerTableProps) {
-  const handleImport = useCallback(
-    (id: string) => {
-      onImport(id);
-    },
-    [onImport],
-  );
-
-  const handleRemove = useCallback(
-    (id: string) => {
-      onRemove(id);
-    },
-    [onRemove],
-  );
-
   const handleFolderClick = useCallback(
     (id: string) => {
       onFolderClick(id);
@@ -111,12 +108,15 @@ export function FilePickerTable({
         </TableRow>,
       );
     } else {
-      console.log("Rendering resources:", resources, indexedPaths);
       nodes.push(
         ...resources.map((resource) => {
           const isFolder = resource.inode_type === "directory";
           const name = resource.inode_path.path.split("/").pop() || "/";
-          const isIndexed = indexedPaths.has(resource.inode_path.path);
+          const indexedResource =
+            indexedResources.get(resource.resource_id) ||
+            indexedResources.get(normalizePath(resource.inode_path.path));
+          const isIndexed = isParentIndexed || !!indexedResource;
+          const isPending = indexedResource?.status === "pending";
           const isSelected = selectedIds.has(resource.resource_id);
 
           return (
@@ -132,21 +132,32 @@ export function FilePickerTable({
                 )}
               </TableCell>
               <TableCell className={cn(!isIndexed && "opacity-50")}>
-                <div
-                  className={cn(
-                    "flex items-center gap-3 cursor-pointer",
-                    isFolder ? "hover:text-primary font-medium" : "",
+                <div className="flex items-center gap-3">
+                  <div
+                    className={cn(
+                      "flex items-center gap-3 cursor-pointer",
+                      isFolder ? "hover:text-primary font-medium" : "",
+                    )}
+                    onClick={() =>
+                      isFolder ? handleFolderClick(resource.resource_id) : null
+                    }
+                  >
+                    {isFolder ? (
+                      <FolderIcon className="w-5 h-5 text-blue-500 fill-blue-500/20 shrink-0" />
+                    ) : (
+                      <FileIcon className="w-5 h-5 text-muted-foreground shrink-0" />
+                    )}
+                    <span className="truncate max-w-[300px]">{name}</span>
+                  </div>
+                  {isPending && (
+                    <Badge
+                      variant="secondary"
+                      className="gap-1 px-1.5 py-0 h-5 text-[10px] font-normal"
+                    >
+                      <Loader2 className="w-2.5 h-2.5 animate-spin" />
+                      Syncing...
+                    </Badge>
                   )}
-                  onClick={() =>
-                    isFolder ? handleFolderClick(resource.resource_id) : null
-                  }
-                >
-                  {isFolder ? (
-                    <FolderIcon className="w-5 h-5 text-blue-500 fill-blue-500/20 shrink-0" />
-                  ) : (
-                    <FileIcon className="w-5 h-5 text-muted-foreground shrink-0" />
-                  )}
-                  <span className="truncate max-w-[300px]">{name}</span>
                 </div>
               </TableCell>
               <TableCell className="text-right">
@@ -155,8 +166,10 @@ export function FilePickerTable({
                     variant="ghost"
                     size="sm"
                     className="text-destructive hover:text-destructive hover:bg-destructive/10"
-                    onClick={() => handleRemove(resource.resource_id)}
-                    disabled={isActionPending}
+                    onClick={() =>
+                      onRemove(resource.resource_id, resource.inode_path.path)
+                    }
+                    disabled={isActionPending || isPending}
                   >
                     <Trash2 className="h-4 w-4" />
                   </Button>
@@ -165,7 +178,7 @@ export function FilePickerTable({
                     variant="outline"
                     size="sm"
                     className="gap-1"
-                    onClick={() => handleImport(resource.resource_id)}
+                    onClick={() => onImport(resource.resource_id)}
                     disabled={isActionPending}
                   >
                     Import
@@ -181,11 +194,12 @@ export function FilePickerTable({
     return nodes;
   }, [
     resources,
-    indexedPaths,
+    indexedResources,
+    isParentIndexed,
     isActionPending,
     isLoading,
-    handleImport,
-    handleRemove,
+    onImport,
+    onRemove,
     handleFolderClick,
     onBack,
     selectedIds,
