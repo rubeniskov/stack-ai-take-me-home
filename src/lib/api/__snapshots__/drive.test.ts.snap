@@ -1,5 +1,29 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
+exports[`driveApi > creates a knowledge base correctly 1`] = `
+{
+  "connection_id": "conn-123",
+  "connection_source_ids": [
+    "src-1",
+  ],
+  "indexing_params": {
+    "chunker_params": {
+      "chunk_overlap": 500,
+      "chunk_size": 1500,
+      "chunker": "sentence",
+    },
+    "embedding_params": {
+      "api_key": null,
+      "embedding_model": "openai.text-embedding-ada-002",
+    },
+    "ocr": false,
+    "unstructured": true,
+  },
+  "knowledge_base_id": "kb-123",
+  "org_level_role": null,
+}
+`;
+
 exports[`driveApi > lists connections correctly 1`] = `
 [
   {
@@ -12,6 +36,50 @@ exports[`driveApi > lists connections correctly 1`] = `
     "org_id": "org-456",
     "provider_id": "gdrive",
     "updated_at": "2024-01-01",
+  },
+]
+`;
+
+exports[`driveApi > lists knowledge base resources correctly 1`] = `
+{
+  "current_cursor": null,
+  "data": [
+    {
+      "inode_path": {
+        "path": "/test.txt",
+      },
+      "inode_type": "file",
+      "resource_id": "res-123",
+      "status": "indexed",
+    },
+  ],
+  "next_cursor": null,
+}
+`;
+
+exports[`driveApi > lists knowledge bases correctly 1`] = `
+[
+  {
+    "connection_id": "conn-123",
+    "connection_source_ids": [
+      "src-1",
+      "src-2",
+    ],
+    "indexing_params": {
+      "chunker_params": {
+        "chunk_overlap": 500,
+        "chunk_size": 1500,
+        "chunker": "sentence",
+      },
+      "embedding_params": {
+        "api_key": null,
+        "embedding_model": "openai.text-embedding-ada-002",
+      },
+      "ocr": false,
+      "unstructured": true,
+    },
+    "knowledge_base_id": "kb-123",
+    "org_level_role": null,
   },
 ]
 `;

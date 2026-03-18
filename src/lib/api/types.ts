@@ -56,3 +56,43 @@ export interface Connection {
   created_at: string;
   updated_at: string;
 }
+
+export type InodeType = "directory" | "file";
+
+export interface InodePath {
+  path: string;
+}
+
+export interface Resource {
+  resource_id: string;
+  inode_type: InodeType;
+  inode_path: InodePath;
+}
+
+export interface IndexingParams {
+  ocr: boolean;
+  unstructured: boolean;
+  embedding_params: {
+    embedding_model: string;
+    api_key: string | null;
+  };
+  chunker_params: {
+    chunk_size: number;
+    chunk_overlap: number;
+    chunker: string;
+  };
+}
+
+export interface KnowledgeBase {
+  knowledge_base_id: string;
+  connection_id: string;
+  connection_source_ids: string[];
+  indexing_params: IndexingParams;
+  org_level_role: string | null;
+}
+
+export type ResourceStatus = "pending" | "indexed" | "error";
+
+export interface KnowledgeBaseResource extends Resource {
+  status: ResourceStatus;
+}
