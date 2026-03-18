@@ -1,5 +1,12 @@
+import React from "react";
 import type { Preview } from "@storybook/nextjs-vite";
+import { Inter } from "next/font/google";
 import "../src/app/globals.css";
+
+const inter = Inter({
+  subsets: ["latin"],
+  variable: "--font-sans",
+});
 
 const preview: Preview = {
   parameters: {
@@ -11,12 +18,17 @@ const preview: Preview = {
     },
 
     a11y: {
-      // 'todo' - show a11y violations in the test UI only
-      // 'error' - fail CI on a11y violations
-      // 'off' - skip a11y checks entirely
       test: "todo",
     },
   },
+  decorators: [
+    (Story) =>
+      React.createElement(
+        "div",
+        { className: `font-sans ${inter.variable}` },
+        React.createElement(Story),
+      ),
+  ],
 };
 
 export default preview;
