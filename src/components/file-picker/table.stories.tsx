@@ -67,6 +67,15 @@ export const WithData: Story = {
   },
 };
 
+export const WithBack: Story = {
+  args: {
+    resources: mockResources,
+    isLoading: false,
+    indexedPaths: new Set(),
+    onBack: fn(),
+  },
+};
+
 export const ActionPending: Story = {
   args: {
     resources: mockResources,

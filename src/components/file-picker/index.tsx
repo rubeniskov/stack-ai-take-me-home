@@ -81,9 +81,13 @@ export function FilePicker({
     );
   }, [resources, searchQuery]);
 
-  const handleFolderClick = (id: string, name: string) => {
+  const handleFolderClick = (id: string) => {
     router.push(`/browse/${currentConnectionId}/${id}`);
   };
+
+  const handleBack = useCallback(() => {
+    router.push(`/browse/${currentConnectionId}`);
+  }, [router, currentConnectionId]);
 
   const handleConnectionSelect = useCallback(
     (id: string) => {
@@ -152,6 +156,7 @@ export function FilePicker({
           resources={filteredResources}
           isLoading={isLoadingResources}
           onFolderClick={handleFolderClick}
+          onBack={currentFolderId ? handleBack : undefined}
           indexedPaths={indexedPaths}
           onImport={handleImport}
           onRemove={handleRemove}
