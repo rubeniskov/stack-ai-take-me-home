@@ -50,11 +50,15 @@ export function FilePickerFooter({
             Cancel
           </Button>
           <Button
-            disabled={selectedCount === 0 || isConfirmPending}
+            disabled={isConfirmPending}
             className="bg-blue-600 hover:bg-blue-700 text-white min-w-[120px] flex-1 sm:flex-none"
-            onClick={onConfirm}
+            onClick={selectedCount === 0 ? onSelectAll : onConfirm}
           >
-            {isConfirmPending ? "Importing..." : `Import ${selectedCount}`}
+            {isConfirmPending
+              ? "Importing..."
+              : selectedCount === 0
+                ? "Select All"
+                : `Import ${selectedCount}`}
           </Button>
         </div>
       </div>
