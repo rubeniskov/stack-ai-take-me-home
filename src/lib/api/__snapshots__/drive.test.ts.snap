@@ -1,0 +1,17 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`driveApi > lists connections correctly 1`] = `
+[
+  {
+    "auth_method": "oauth",
+    "connection_id": "conn-123",
+    "connector_id": "ctor-789",
+    "connector_type_id": "gdrive",
+    "created_at": "2024-01-01",
+    "name": "My Drive",
+    "org_id": "org-456",
+    "provider_id": "gdrive",
+    "updated_at": "2024-01-01",
+  },
+]
+`;
