@@ -1,7 +1,7 @@
 packages:
-  - apps/*
-  - libs/*
-  - packages/*
+  - src/apps/*
+  - src/libs/*
+  - src/packages/*
 
 ignoredBuiltDependencies:
   - sharp
