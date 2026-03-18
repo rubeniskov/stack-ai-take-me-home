@@ -34,3 +34,7 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+
+## Automated Code Quality (Git Hooks)
+
+To ensure the codebase adheres to React good practices and maintains high code quality standards throughout in development cycle, I implemented an automated linting and formatting pipeline using Husky and lint-staged.Husky: Manages native Git hooks to prevent "dirty" code from being committed to the repository.lint-staged.

@@ -1,0 +1,19 @@
+# Ignore lockfiles
+pnpm-lock.yaml
+package-lock.json
+yarn.lock
+
+# Build outputs
+.next
+dist
+out
+build
+
+# Dependencies
+node_modules
+
+# Coverage
+coverage
+
+# Environment files
+.env*
