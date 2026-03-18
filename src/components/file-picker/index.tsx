@@ -1,43 +1,89 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
-import { useConnections } from "@/hooks/useConnections";
-import { FilePickerHeader } from "./header";
-import { ConnectorType } from "@/lib/api";
-import { ConnectionNames } from "./constants";
-import { FilePickerSidebar } from "./sidebar";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+import { useConnections } from "@/hooks/useConnections";
+import { useResources } from "@/hooks/useResources";
+import { useKnowledgeBases } from "@/hooks/useKnowledgeBases";
+import { useKnowledgeBaseResources } from "@/hooks/useKnowledgeBaseResources";
+import { useCreateKnowledgeBase } from "@/hooks/useCreateKnowledgeBase";
+import { useSyncKnowledgeBase } from "@/hooks/useSyncKnowledgeBase";
+import { useDeleteResource } from "@/hooks/useDeleteResource";
+import { FilePickerSidebar } from "./sidebar";
+import { FilePickerHeader } from "./header";
+import { FilePickerTable } from "./table";
+import { ConnectionNames } from "./constants";
 
 export interface FilePickerProps {
   initialConnectionId?: string;
   initialFolderId?: string;
 }
 
-export function FilePicker({ initialConnectionId }: FilePickerProps) {
+export function FilePicker({
+  initialConnectionId,
+  initialFolderId,
+}: FilePickerProps) {
   const router = useRouter();
+
   const { data: connections } = useConnections();
-  const [selectedConnectionId] = useState<string | null>(null);
+
+  // If initialConnectionId is provided, use it. Otherwise, use the first available connection.
+  const currentConnectionId =
+    initialConnectionId || connections?.[0]?.connection_id || null;
+
+  const currentFolderId = initialFolderId;
 
   const [searchQuery, setSearchQuery] = useState("");
 
-  const currentConnectionId =
-    selectedConnectionId ||
-    initialConnectionId ||
-    connections?.[0]?.connection_id;
-
-  const currentConnection = connections?.find(
-    (conn) => conn.connection_id === currentConnectionId,
-  );
-
-  const connectionName = currentConnection
-    ? ConnectionNames[currentConnection.connector_type_id as ConnectorType]
-    : "Unknown Connection";
-
+  // Redirect to first connection if none selected
   useEffect(() => {
     if (!initialConnectionId && connections && connections.length > 0) {
       router.replace(`/browse/${connections[0].connection_id}`);
     }
   }, [initialConnectionId, connections, router]);
+
+  const { data: resources, isLoading: isLoadingResources } = useResources(
+    currentConnectionId || undefined,
+    currentFolderId,
+  );
+
+  const { data: kbs } = useKnowledgeBases();
+  const currentKb = useMemo(
+    () => kbs?.find((kb) => kb.connection_id === currentConnectionId),
+    [kbs, currentConnectionId],
+  );
+
+  const { data: kbResources } = useKnowledgeBaseResources(
+    currentKb?.knowledge_base_id,
+  );
+
+  const currentConnection = useMemo(
+    () => connections?.find((c) => c.connection_id === currentConnectionId),
+    [connections, currentConnectionId],
+  );
+
+  const createKb = useCreateKnowledgeBase();
+  const syncKb = useSyncKnowledgeBase();
+  const deleteResource = useDeleteResource();
+  console.log("Current KB:", kbResources);
+  const indexedPaths = useMemo(() => {
+    return new Set(kbResources?.data.map((r) => r.inode_path.path) || []);
+  }, [kbResources]);
+
+  const filteredResources = useMemo(() => {
+    if (!resources?.data) return [];
+    return resources.data.filter((r) =>
+      r.inode_path.path
+        .split("/")
+        .pop()
+        ?.toLowerCase()
+        .includes(searchQuery.toLowerCase()),
+    );
+  }, [resources, searchQuery]);
+
+  const handleFolderClick = (id: string, name: string) => {
+    router.push(`/browse/${currentConnectionId}/${id}`);
+  };
 
   const handleConnectionSelect = useCallback(
     (id: string) => {
@@ -45,6 +91,39 @@ export function FilePicker({ initialConnectionId }: FilePickerProps) {
     },
     [router],
   );
+
+  const handleImport = useCallback(
+    async (id: string) => {
+      if (!currentConnectionId || !currentKb) return;
+      await createKb.mutateAsync({
+        connectionId: currentConnectionId,
+        resourceIds: [id],
+      });
+      await syncKb.mutateAsync(currentKb.knowledge_base_id);
+    },
+    [currentConnectionId, currentKb, createKb, syncKb],
+  );
+
+  const handleRemove = useCallback(
+    async (id: string) => {
+      if (!currentKb) return;
+      const resource = resources?.data?.find((r) => r.resource_id === id);
+      if (!resource) return;
+
+      deleteResource.mutate({
+        knowledgeBaseId: currentKb.knowledge_base_id,
+        path: resource.inode_path.path,
+      });
+    },
+    [currentKb, resources, deleteResource],
+  );
+
+  const connectionName = currentConnection?.connector_type_id
+    ? ConnectionNames[currentConnection?.connector_type_id]
+    : null;
+
+  const isActionPending =
+    createKb.isPending || syncKb.isPending || deleteResource.isPending;
 
   if (!connections?.length) {
     return (
@@ -58,14 +137,25 @@ export function FilePicker({ initialConnectionId }: FilePickerProps) {
     <div className="flex h-[600px] w-full overflow-hidden border rounded-lg bg-background shadow-lg">
       <FilePickerSidebar
         connections={connections}
-        currentConnectionId={currentConnectionId!}
+        currentConnectionId={currentConnectionId}
         onConnectionSelect={handleConnectionSelect}
       />
+
       <div className="flex-1 flex flex-col overflow-hidden">
         <FilePickerHeader
-          providerName={connectionName}
+          providerName={connectionName || "Unknown"}
           searchQuery={searchQuery}
           onSearchChange={setSearchQuery}
+        />
+
+        <FilePickerTable
+          resources={filteredResources}
+          isLoading={isLoadingResources}
+          onFolderClick={handleFolderClick}
+          indexedPaths={indexedPaths}
+          onImport={handleImport}
+          onRemove={handleRemove}
+          isActionPending={isActionPending}
         />
       </div>
     </div>
