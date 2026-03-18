@@ -67,6 +67,18 @@ I have implemented a testing pipeline to ensure UI/UX quality and functional sta
 
 - Safety Gate: Tests are integrated into the Git pre-commit hook via Husky, ensuring that no breaking changes to the Google Drive connection or Knowledge Base indexing are pushed to the repository.
 
+### Storybook
+
+I have integrated Storybook to facilitate component-driven development and ensure UI consistency.
+
+- **Isolated Development**: Develop components in isolation without needing to run the full application.
+- **Visual Testing**: Using `@storybook/addon-vitest`, stories are automatically tested to ensure they render correctly and maintain their functionality over time.
+- **Documentation**: Serves as a living documentation for the UI components used in the project.
+
+- **Execution**:
+  - `pnpm run storybook`: Starts the Storybook development server.
+  - `pnpm run build-storybook`: Builds the Storybook for deployment.
+
 ### CI/CD
 
 I have implemented a GitHub Actions workflow to automate the testing, linting, and formatting checks on every push or pull request to the `main` branch.
