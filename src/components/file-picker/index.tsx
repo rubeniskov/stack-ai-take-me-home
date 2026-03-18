@@ -85,9 +85,7 @@ export function FilePicker({
 
   const selectableResources = useMemo(() => {
     return (
-      resources?.data?.filter(
-        (r) => r.inode_type === "file" && !indexedPaths.has(r.inode_path.path),
-      ) || []
+      resources?.data?.filter((r) => !indexedPaths.has(r.inode_path.path)) || []
     );
   }, [resources, indexedPaths]);
 

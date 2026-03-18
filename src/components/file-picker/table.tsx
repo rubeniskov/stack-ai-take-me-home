@@ -122,7 +122,7 @@ export function FilePickerTable({
           return (
             <TableRow key={resource.resource_id} className="group">
               <TableCell className="w-10">
-                {!isFolder && !isIndexed && (
+                {!isIndexed && (
                   <Checkbox
                     checked={isSelected}
                     onCheckedChange={() =>
@@ -150,7 +150,7 @@ export function FilePickerTable({
                 </div>
               </TableCell>
               <TableCell className="text-right">
-                {isFolder ? null : isIndexed ? (
+                {isIndexed ? (
                   <Button
                     variant="ghost"
                     size="sm"
