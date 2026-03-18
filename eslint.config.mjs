@@ -7,11 +7,25 @@ const eslintConfig = defineConfig([
   ...nextTs,
   // Override default ignores of eslint-config-next.
   globalIgnores([
-    // Default ignores of eslint-config-next:
+    // Dependencies
+    "node_modules/**",
+
+    // Build outputs
     ".next/**",
+    "dist/**",
     "out/**",
     "build/**",
+
+    // Coverage
+    "coverage/**",
+
+    // Next.js files
     "next-env.d.ts",
+
+    // Lockfiles
+    "pnpm-lock.yaml",
+    "package-lock.json",
+    "yarn.lock",
   ]),
 ]);
 

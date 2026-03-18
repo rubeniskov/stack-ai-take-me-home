@@ -17,3 +17,6 @@ coverage
 
 # Environment files
 .env*
+
+# Ignore specific pnpm files
+pnpm-workspace.yaml
