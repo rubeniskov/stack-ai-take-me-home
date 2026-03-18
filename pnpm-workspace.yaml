@@ -8,4 +8,5 @@ ignoredBuiltDependencies:
   - unrs-resolver
 
 onlyBuiltDependencies:
+  - esbuild
   - msw
