@@ -1,3 +1,7 @@
+# Stack AI - Take Me Home
+
+[![CI](https://github.com/rubeniskov/stack-ai-take-me-home/actions/workflows/ci.yml/badge.svg)](https://github.com/rubeniskov/stack-ai-take-me-home/actions/workflows/ci.yml)
+
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
 ## Getting Started
@@ -67,7 +71,7 @@ I have implemented a testing pipeline to ensure UI/UX quality and functional sta
 
 I have implemented a GitHub Actions workflow to automate the testing, linting, and formatting checks on every push or pull request to the `main` branch.
 
-- **Workflow**: `.github/workflows/ci.yml`
+- **Workflow**: [.github/workflows/ci.yml](.github/workflows/ci.yml)
 - **Steps**:
   - **Lint**: Ensures the code follows ESLint rules.
   - **Format**: Verifies that the code is formatted with Prettier.
